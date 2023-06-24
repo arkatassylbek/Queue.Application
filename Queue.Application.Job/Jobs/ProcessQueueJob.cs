@@ -16,7 +16,11 @@ public class ProcessQueueJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var processIds = await _dbProcessQueueService.GetToProcessAsync(context.JobDetail.JobDataMap.GetIntValue("BatchSize"));
+        var processIds = await _dbProcessQueueService.GetToProcessAsync(
+            context.JobDetail.JobDataMap.GetIntValue("BatchSize"),
+            context.JobDetail.JobDataMap.GetBooleanValue("SortByAttempt"),
+            context.JobDetail.JobDataMap.GetString("EventName")
+        );
         foreach (var processId in processIds)
         {
             Console.WriteLine(processId + " in work");

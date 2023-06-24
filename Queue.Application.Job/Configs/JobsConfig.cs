@@ -12,4 +12,6 @@ public class JobConfig
     public int BatchSize { get; set; }
     public bool Enabled { get; set; }
     public string CronSchedule { get; set; }
+    public string EventName { get; set; }
+    public bool SortByAttempt { get; set; }
 }

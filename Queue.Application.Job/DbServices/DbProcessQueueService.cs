@@ -17,12 +17,35 @@ public class DbProcessQueueService : IDbProcessQueueService
             .GetDatabase("local").GetCollection<Process>("processQueue");
     }
 
-    public async Task<IEnumerable<string>> GetToProcessAsync(int batchSize)
+    public async Task<IEnumerable<string>> GetToProcessAsync(int batchSize, bool sortByAttempt, string eventName = null)
     {
-        var filter = Builders<Process>.Filter.Eq(i => i.Processing, false);
-        var update = Builders<Process>.Update.Set(i => i.Processing, true).Set(i => i.ModifyDate, DateTime.Now).Inc(i => i.Attempt, 1);
-        var options = new FindOneAndUpdateOptions<Process> { Projection = Builders<Process>.Projection.Include(i => i.Key) };
+        var update = Builders<Process>.Update
+            .Set(i => i.Processing, true)
+            .Set(i => i.ModifyDate, DateTime.Now)
+            .Inc(i => i.Attempt, 1);
+        
+        var options = new FindOneAndUpdateOptions<Process>
+        {
+            Projection = Builders<Process>.Projection.Include(i => i.Key)
+        };
+        
+        FilterDefinition<Process> filter;
+        if (string.IsNullOrWhiteSpace(eventName))
+        {
+            filter = Builders<Process>.Filter.Eq(i => i.Processing, false);
+        }
+        else
+        {
+            filter = Builders<Process>.Filter.And(
+                Builders<Process>.Filter.Eq(i => i.Processing, false), 
+                Builders<Process>.Filter.Eq(i => i.EventName, eventName));
+        }
 
+        if (sortByAttempt)
+        {
+            options.Sort = Builders<Process>.Sort.Descending(i => i.Attempt);
+        }
+        
         var tasks = new List<Task<string>>();
         for (var i = 0; i < batchSize; i++)
         {

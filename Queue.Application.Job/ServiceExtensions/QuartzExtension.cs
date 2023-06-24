@@ -41,6 +41,8 @@ public static class QuartzExtension
                 q.AddJob(jobType, jobKey, j => j
                     .StoreDurably()
                     .UsingJobData("BatchSize", jobConfig.BatchSize)
+                    .UsingJobData("EventName", jobConfig.EventName)
+                    .UsingJobData("SortByAttempt", jobConfig.SortByAttempt)
                 );
                     
                 q.AddTrigger(t => t

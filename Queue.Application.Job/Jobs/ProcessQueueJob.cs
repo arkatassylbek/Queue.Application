@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NLog;
@@ -15,10 +14,11 @@ public class ProcessQueueJob : IJob
     private readonly IReceiverService _receiverService;
     private readonly ILogger<ProcessQueueJob> _logger;
     
-    public ProcessQueueJob(IDbProcessQueueService dbProcessQueueService, ILogger<ProcessQueueJob> logger)
+    public ProcessQueueJob(IDbProcessQueueService dbProcessQueueService, ILogger<ProcessQueueJob> logger, IReceiverService receiverService)
     {
         _dbProcessQueueService = dbProcessQueueService;
         _logger = logger;
+        _receiverService = receiverService;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -41,8 +41,9 @@ public class ProcessQueueJob : IJob
             {
                 var response = await _receiverService.Send(processId);
                 if (response.IsSuccess is false) throw new Exception(response.Error);
-                await _dbProcessQueueService.RemoveProcessAsync(processId);
+                
                 _logger.LogInformation($"{processId} successfully processed");
+                await _dbProcessQueueService.RemoveProcessAsync(processId);
                 success += 1;
             }
             catch (Exception e)

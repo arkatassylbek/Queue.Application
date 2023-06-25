@@ -4,10 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Queue.Application.Job.Configs;
 using Queue.Application.Job.ServiceExtensions;
 using NLog;
 using NLog.Web;
+using Queue.Application.Job.HttpServices;
 
 // Early init of NLog to allow startup and exception logging, before host is built
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
@@ -17,7 +19,6 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add services to the container.
     builder.Services.AddControllers();
     
     // NLog: Setup NLog for Dependency injection
@@ -27,10 +28,14 @@ try
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.Configure<AppSettingsConfig>(builder.Configuration.GetSection("AppSettings"));
     builder.Services.Configure<JobsConfig>(builder.Configuration.GetSection("Jobs"));
     builder.Services.AddQuartzServices(builder.Configuration.Get<JobsConfig>());
     builder.Services.AddMongoDbServices();
 
+    //Register services
+    builder.Services.AddSingleton<IReceiverService>(sp => new ReceiverService(sp.GetService<IOptionsMonitor<AppSettingsConfig>>().CurrentValue.ReceiverUrl));
+    
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.

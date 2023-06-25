@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,8 +53,16 @@ public class DbProcessQueueService : IDbProcessQueueService
             tasks.Add(GetProcessAsync(filter, update, options));
         }
 
-        var processIds = await Task.WhenAll(tasks);
-        return processIds.Where(p => p is not null).ToList();
+        ConcurrentBag<string> output = new();
+
+        ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = -1 };
+        await Parallel.ForEachAsync(tasks, parallelOptions, async (task, _) =>
+        {
+            var processId = await task;
+            if (processId is not null) output.Add(processId);
+        });
+
+        return output.ToList();
     }
 
     private async Task<string> GetProcessAsync(FilterDefinition<ProcessQueueItem> filter, UpdateDefinition<ProcessQueueItem> update, FindOneAndUpdateOptions<ProcessQueueItem> options)
@@ -66,7 +75,6 @@ public class DbProcessQueueService : IDbProcessQueueService
     {
         var filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.Key, processId);
         var update = Builders<ProcessQueueItem>.Update
-            .Set(i => i.Processing, true)
             .Set(i => i.ModifyDate, DateTime.Now)
             .Inc(i => i.Error, error);
         

@@ -17,7 +17,7 @@ public class ReceiverService : IReceiverService
 
     public async Task<ReceiverResponse> Send(string processId)
     {
-        using var response = await _httpClient.PostAsJsonAsync("send", new { processId });
+        using var response = await _httpClient.PostAsJsonAsync("save", new { processId });
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<ReceiverResponse>();
     }

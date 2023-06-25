@@ -6,7 +6,7 @@ using Queue.Application.Receiver.Models;
 
 namespace Queue.Application.Receiver.DbServices;
 
-public class DbProcessQueueService
+public class DbProcessQueueService : IDbProcessQueueService
 {
     private readonly IMongoCollection<ProcessQueueItem> _collection;
 

@@ -10,6 +10,7 @@ using Queue.Application.Job.ServiceExtensions;
 using NLog;
 using NLog.Web;
 using Queue.Application.Job.HttpServices;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 // Early init of NLog to allow startup and exception logging, before host is built
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
@@ -23,6 +24,7 @@ try
     
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
+    builder.Logging.SetMinimumLevel(LogLevel.Debug);
     builder.Host.UseNLog();
     
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

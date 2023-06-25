@@ -29,7 +29,7 @@ public class DbProcessQueueService : IDbProcessQueueService
                 ProcessId = Guid.NewGuid().ToString(),
                 EventName = $"Step{stepNumber}",
                 InsertDate = DateTime.Now,
-                NextProcessingDate = DateTime.Now.AddHours(10),
+                NextProcessingDate = DateTime.Now.AddMinutes(3),
                 ModifyDate = DateTime.Now,
                 Processing = false,
                 Attempt = 0,

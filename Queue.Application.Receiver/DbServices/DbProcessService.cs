@@ -12,11 +12,12 @@ public class DbProcessService : IDbProcessService
     public DbProcessService()
     {
         _collection = new MongoClient("mongodb://localhost:27017/?retryWrites=true&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000")
-            .GetDatabase("local").GetCollection<Process>("Process");
+            .GetDatabase("local")
+            .GetCollection<Process>("Process");
     }
 
     public async Task InsertAsync(string processId)
-    {
+    { 
         await _collection.InsertOneAsync(new Process
         {
             Id = processId,

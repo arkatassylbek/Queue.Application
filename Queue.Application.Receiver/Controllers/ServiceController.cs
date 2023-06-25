@@ -23,8 +23,8 @@ public class ServiceController : ControllerBase
     }
 
     [HttpPost]
-    [ActionName(nameof(Save))]
-    public async Task<SaveResponse> Save(SaveRequest request)
+    [ActionName(nameof(SaveProcessId))]
+    public async Task<SaveResponse> SaveProcessId(SaveRequest request)
     {
         try
         {
@@ -34,6 +34,7 @@ public class ServiceController : ControllerBase
         }
         catch (Exception e)
         {
+            _logger.LogError(e, $"Filed to save {request.ProcessId}");
             return new SaveResponse { IsSuccess = false, Error = e.Message };
         }
     }
@@ -50,6 +51,7 @@ public class ServiceController : ControllerBase
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Failed to generate");
             return StatusCode(500, e);
         }
     }

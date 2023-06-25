@@ -26,9 +26,10 @@ public class DbProcessQueueService : IDbProcessQueueService
             var stepNumber = random.Next(1, 10);
             var queueItem = new ProcessQueueItem
             {
-                Key = Guid.NewGuid().ToString(),
+                ProcessId = Guid.NewGuid().ToString(),
                 EventName = $"Step{stepNumber}",
                 InsertDate = DateTime.Now,
+                NextProcessingDate = DateTime.Now.AddHours(10),
                 ModifyDate = DateTime.Now,
                 Processing = false,
                 Attempt = 0,

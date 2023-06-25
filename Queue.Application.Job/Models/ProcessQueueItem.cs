@@ -6,8 +6,9 @@ namespace Queue.Application.Job.Models;
 [BsonIgnoreExtraElements]
 public class ProcessQueueItem
 {
-    public string Key { get; set; }
+    public string ProcessId { get; set; }
     public string EventName { get; set; }
+    public DateTime NextProcessingDate { get; set; }
     public DateTime InsertDate { get; set; }
     public DateTime ModifyDate { get; set; }
     public bool Processing { get; set; }

@@ -27,18 +27,22 @@ public class DbProcessQueueService : IDbProcessQueueService
         
         var options = new FindOneAndUpdateOptions<ProcessQueueItem>
         {
-            Projection = Builders<ProcessQueueItem>.Projection.Include(i => i.Key)
+            Projection = Builders<ProcessQueueItem>.Projection.Include(i => i.ProcessId)
         };
         
         FilterDefinition<ProcessQueueItem> filter;
         if (string.IsNullOrWhiteSpace(eventName))
         {
-            filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false);
+            filter = Builders<ProcessQueueItem>.Filter.And(
+                Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false),
+                Builders<ProcessQueueItem>.Filter.Lte(i => i.NextProcessingDate, DateTime.Now)
+                );
         }
         else
         {
             filter = Builders<ProcessQueueItem>.Filter.And(
-                Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false), 
+                Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false),
+                Builders<ProcessQueueItem>.Filter.Lte(i => i.NextProcessingDate, DateTime.Now), 
                 Builders<ProcessQueueItem>.Filter.Eq(i => i.EventName, eventName));
         }
 
@@ -68,13 +72,14 @@ public class DbProcessQueueService : IDbProcessQueueService
     private async Task<string> GetProcessAsync(FilterDefinition<ProcessQueueItem> filter, UpdateDefinition<ProcessQueueItem> update, FindOneAndUpdateOptions<ProcessQueueItem> options)
     {
         var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
-        return result?.Key;
+        return result?.ProcessId;
     }
 
     public async Task SetErrorProcessAsync(string processId, string error)
     {
-        var filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.Key, processId);
+        var filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.ProcessId, processId);
         var update = Builders<ProcessQueueItem>.Update
+            .Set(i => i.NextProcessingDate, DateTime.Now.AddHours(1))
             .Set(i => i.ModifyDate, DateTime.Now)
             .Inc(i => i.Error, error);
         
@@ -83,6 +88,6 @@ public class DbProcessQueueService : IDbProcessQueueService
     
     public async Task RemoveProcessAsync(string processId)
     {
-        await _collection.DeleteOneAsync(Builders<ProcessQueueItem>.Filter.Eq(i => i.Key, processId));
+        await _collection.DeleteOneAsync(Builders<ProcessQueueItem>.Filter.Eq(i => i.ProcessId, processId));
     }
 }

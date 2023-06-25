@@ -1,10 +1,10 @@
 using System;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Queue.Application.Job.Models;
+namespace Queue.Application.Receiver.Models;
 
 [BsonIgnoreExtraElements]
-public class Process
+public class ProcessQueueItem
 {
     public string Key { get; set; }
     public string EventName { get; set; }

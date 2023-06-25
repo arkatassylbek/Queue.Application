@@ -9,77 +9,72 @@ namespace Queue.Application.Job.DbServices;
 
 public class DbProcessQueueService : IDbProcessQueueService
 {
-    private readonly IMongoCollection<Process> _collection;
+    private readonly IMongoCollection<ProcessQueueItem> _collection;
 
     public DbProcessQueueService()
     {
         _collection = new MongoClient("mongodb://localhost:27017/?retryWrites=true&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000")
-            .GetDatabase("local").GetCollection<Process>("processQueue");
+            .GetDatabase("local").GetCollection<ProcessQueueItem>("ProcessQueue");
     }
 
-    public async Task<IEnumerable<string>> GetToProcessAsync(int batchSize, bool sortByAttempt, string eventName = null)
+    public async Task<List<string>> GetToProcessAsync(int batchSize, bool sortByAttempt, string eventName = null)
     {
-        var update = Builders<Process>.Update
+        var update = Builders<ProcessQueueItem>.Update
             .Set(i => i.Processing, true)
             .Set(i => i.ModifyDate, DateTime.Now)
             .Inc(i => i.Attempt, 1);
         
-        var options = new FindOneAndUpdateOptions<Process>
+        var options = new FindOneAndUpdateOptions<ProcessQueueItem>
         {
-            Projection = Builders<Process>.Projection.Include(i => i.Key)
+            Projection = Builders<ProcessQueueItem>.Projection.Include(i => i.Key)
         };
         
-        FilterDefinition<Process> filter;
+        FilterDefinition<ProcessQueueItem> filter;
         if (string.IsNullOrWhiteSpace(eventName))
         {
-            filter = Builders<Process>.Filter.Eq(i => i.Processing, false);
+            filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false);
         }
         else
         {
-            filter = Builders<Process>.Filter.And(
-                Builders<Process>.Filter.Eq(i => i.Processing, false), 
-                Builders<Process>.Filter.Eq(i => i.EventName, eventName));
+            filter = Builders<ProcessQueueItem>.Filter.And(
+                Builders<ProcessQueueItem>.Filter.Eq(i => i.Processing, false), 
+                Builders<ProcessQueueItem>.Filter.Eq(i => i.EventName, eventName));
         }
 
         if (sortByAttempt)
         {
-            options.Sort = Builders<Process>.Sort.Descending(i => i.Attempt);
+            options.Sort = Builders<ProcessQueueItem>.Sort.Descending(i => i.Attempt);
         }
         
         var tasks = new List<Task<string>>();
         for (var i = 0; i < batchSize; i++)
         {
-            tasks.Add(GetProcess(filter, update, options));
+            tasks.Add(GetProcessAsync(filter, update, options));
         }
 
-        var output = await Task.WhenAll(tasks);
-        return output.Where(r => r is not null);
+        var processIds = await Task.WhenAll(tasks);
+        return processIds.Where(p => p is not null).ToList();
     }
 
-    private async Task<string> GetProcess(FilterDefinition<Process> filter, UpdateDefinition<Process> update, FindOneAndUpdateOptions<Process> options)
+    private async Task<string> GetProcessAsync(FilterDefinition<ProcessQueueItem> filter, UpdateDefinition<ProcessQueueItem> update, FindOneAndUpdateOptions<ProcessQueueItem> options)
     {
         var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
         return result?.Key;
     }
-    
-    public async Task CreateProcessesAsync(int amount)
+
+    public async Task SetErrorProcessAsync(string processId, string error)
     {
-        var processes = new List<Process>();
+        var filter = Builders<ProcessQueueItem>.Filter.Eq(i => i.Key, processId);
+        var update = Builders<ProcessQueueItem>.Update
+            .Set(i => i.Processing, true)
+            .Set(i => i.ModifyDate, DateTime.Now)
+            .Inc(i => i.Error, error);
         
-        for (int i = 0; i < amount; i++)
-        {
-            processes.Add(new Process
-            {
-                Key = Guid.NewGuid().ToString(),
-                EventName = "Step1",
-                InsertDate = DateTime.Now,
-                ModifyDate = DateTime.Now,
-                Processing = false,
-                Attempt = 0,
-                Error = null
-            });
-        }
-        
-        await _collection.InsertManyAsync(processes);
+        await _collection.UpdateOneAsync(filter, update);
+    }
+    
+    public async Task RemoveProcessAsync(string processId)
+    {
+        await _collection.DeleteOneAsync(Builders<ProcessQueueItem>.Filter.Eq(i => i.Key, processId));
     }
 }

@@ -5,6 +5,7 @@ namespace Queue.Application.Job.DbServices;
 
 public interface IDbProcessQueueService
 {
-    Task<IEnumerable<string>> GetToProcessAsync(int batchSize, bool sortByAttempt, string eventName = null);
-    Task CreateProcessesAsync(int amount);
+    Task<List<string>> GetToProcessAsync(int batchSize, bool sortByAttempt, string eventName = null);
+    Task SetErrorProcessAsync(string processId, string error);
+    Task RemoveProcessAsync(string processId);
 }

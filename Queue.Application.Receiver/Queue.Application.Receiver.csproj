@@ -6,15 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="MongoDB.Bson" Version="2.20.0" />
         <PackageReference Include="MongoDB.Driver" Version="2.20.0" />
         <PackageReference Include="MongoDB.Driver.Core" Version="2.20.0" />
-        <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
-        <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.6.2" />
         <PackageReference Include="Scrutor" Version="4.2.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="NLog.Web.AspNetCore" Version="5.*" />
-        <PackageReference Include="NLog" Version="5.*" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Configs\" />
+      <Folder Include="Controllers\" />
     </ItemGroup>
 
 </Project>

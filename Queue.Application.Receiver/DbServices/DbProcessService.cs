@@ -9,11 +9,9 @@ public class DbProcessService : IDbProcessService
 {
     private readonly IMongoCollection<Process> _collection;
 
-    public DbProcessService()
+    public DbProcessService(string mongoUrl)
     {
-        _collection = new MongoClient("mongodb://localhost:27017/?retryWrites=true&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000")
-            .GetDatabase("local")
-            .GetCollection<Process>("Process");
+        _collection = new MongoClient(mongoUrl).GetDatabase("local").GetCollection<Process>("Process");
     }
 
     public async Task InsertAsync(string processId)

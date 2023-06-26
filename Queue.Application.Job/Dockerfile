@@ -1,14 +1,14 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Queue.Application.Job/Queue.Application.Job.csproj", "Queue.Application.Job/"]
+COPY ["Queue.Application.Job.csproj", "Queue.Application.Job/"]
 RUN dotnet restore "Queue.Application.Job/Queue.Application.Job.csproj"
-COPY . .
 WORKDIR "/src/Queue.Application.Job"
+COPY . .
 RUN dotnet build "Queue.Application.Job.csproj" -c Release -o /app/build
 
 FROM build AS publish

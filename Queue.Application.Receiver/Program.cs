@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Queue.Application.Receiver.ServiceExtensions;
 using NLog;
 using NLog.Web;
+using Queue.Application.Receiver.Configs;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 // Early init of NLog to allow startup and exception logging, before host is built
@@ -27,6 +28,8 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    builder.Services.Configure<AppSettingsConfig>(builder.Configuration.GetSection("AppSettings"));
+    
     builder.Services.AddMongoDbServices();
 
     var app = builder.Build();

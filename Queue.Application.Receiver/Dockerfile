@@ -1,14 +1,14 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Queue.Application.Receiver/Queue.Application.Receiver.csproj", "Queue.Application.Receiver/"]
+COPY ["Queue.Application.Receiver.csproj", "Queue.Application.Receiver/"]
 RUN dotnet restore "Queue.Application.Receiver/Queue.Application.Receiver.csproj"
-COPY . .
 WORKDIR "/src/Queue.Application.Receiver"
+COPY . .
 RUN dotnet build "Queue.Application.Receiver.csproj" -c Release -o /app/build
 
 FROM build AS publish

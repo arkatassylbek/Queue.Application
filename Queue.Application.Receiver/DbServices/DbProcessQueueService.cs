@@ -10,10 +10,9 @@ public class DbProcessQueueService : IDbProcessQueueService
 {
     private readonly IMongoCollection<ProcessQueueItem> _collection;
 
-    public DbProcessQueueService()
+    public DbProcessQueueService(string mongoUrl)
     {
-        _collection = new MongoClient("mongodb://localhost:27017/?retryWrites=true&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000")
-            .GetDatabase("local").GetCollection<ProcessQueueItem>("ProcessQueue");
+        _collection = new MongoClient(mongoUrl).GetDatabase("local").GetCollection<ProcessQueueItem>("ProcessQueue");
     }
 
     public async Task CreateProcessesAsync(int amount)

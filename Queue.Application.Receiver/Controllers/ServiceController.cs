@@ -22,6 +22,10 @@ public class ServiceController : ControllerBase
         _dbProcessQueueService = dbProcessQueueService;
     }
 
+    [HttpGet]
+    [ActionName(nameof(CheckHealth))]
+    public string CheckHealth() => "OK";
+
     [HttpPost]
     [ActionName(nameof(SaveProcessId))]
     public async Task<SaveResponse> SaveProcessId(SaveRequest request)

@@ -34,6 +34,8 @@ public class ProcessQueueJob : IJob
         
         _logger.LogInformation($"{processIds.Count} to process");
 
+        if (processIds.Count == 0) return;
+
         int success = 0; int failed = 0;
         foreach (var processId in processIds)
         {

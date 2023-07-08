@@ -36,12 +36,12 @@ public class ServiceController : ControllerBase
         try
         {
             await _dbProcessService.InsertAsync(request.ProcessId);
-            _logger.LogInformation("{ProcessId} saved", request.ProcessId);
+            _logger.LogInformation("{MethodName}|{ProcessId} saved", nameof(SaveProcessId), request.ProcessId);
             return new SaveResponse { IsSuccess = true };
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Filed to save {ProcessId}", request.ProcessId);
+            _logger.LogError(e, "{MethodName}|Filed to save {ProcessId}", nameof(SaveProcessId), request.ProcessId);
             return new SaveResponse { IsSuccess = false, Error = e.Message };
         }
     }
@@ -54,12 +54,12 @@ public class ServiceController : ControllerBase
         try
         {
             await _dbProcessQueueService.CreateProcessesAsync(amount);
-            _logger.LogInformation("{Amount} generated", amount);
+            _logger.LogInformation("{MethodName}|{Amount} generated", nameof(GenerateProcesses), amount);
             return Ok();
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to generate");
+            _logger.LogError(e, "{MethodName}|Failed to generate", nameof(GenerateProcesses));
             return StatusCode(500, e);
         }
     }

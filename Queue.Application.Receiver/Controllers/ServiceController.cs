@@ -25,12 +25,12 @@ public class ServiceController : ControllerBase
 
     [HttpGet]
     [ActionName(nameof(CheckHealth))]
-    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(CheckHealth) })]
+    [TypeFilter(typeof(ServiceLogFilter), Arguments = new object[] { nameof(ServiceController), nameof(CheckHealth) })]
     public string CheckHealth() => "OK";
 
     [HttpPost]
     [ActionName(nameof(SaveProcessId))]
-    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(SaveProcessId) })]
+    [TypeFilter(typeof(ServiceLogFilter), Arguments = new object[] { nameof(ServiceController), nameof(SaveProcessId) })]
     public async Task<SaveResponse> SaveProcessId(SaveRequest request)
     {
         try
@@ -48,7 +48,7 @@ public class ServiceController : ControllerBase
     
     [HttpGet]
     [ActionName(nameof(GenerateProcesses))]
-    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(GenerateProcesses) })]
+    [TypeFilter(typeof(ServiceLogFilter), Arguments = new object[] { nameof(ServiceController), nameof(GenerateProcesses) })]
     public async Task<IActionResult> GenerateProcesses([FromQuery] int amount)
     {
         try

@@ -9,6 +9,6 @@ public class ServiceController : ControllerBase
 {
     [HttpGet]
     [ActionName(nameof(CheckHealth))]
-    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(CheckHealth) })]
+    [TypeFilter(typeof(ServiceLogFilter), Arguments = new object[] { nameof(ServiceController), nameof(CheckHealth) })]
     public string CheckHealth() => "OK";
 }

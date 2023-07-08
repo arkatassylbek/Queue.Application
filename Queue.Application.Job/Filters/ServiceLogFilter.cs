@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Queue.Application.Job.Filters;
 
-public class ServiceLogFilter<T> : Attribute, IActionFilter
+public class ServiceLogFilter : Attribute, IActionFilter
 {
-    private readonly ILogger<T> _logger;
+    private readonly ILogger _logger;
     private readonly string _methodName;
     
-    public ServiceLogFilter(ILoggerFactory loggerFactory, string methodName)
+    public ServiceLogFilter(ILoggerFactory loggerFactory, string className, string methodName)
     {
-        _logger = loggerFactory.CreateLogger<T>();
+        _logger = loggerFactory.CreateLogger(className);
         _methodName = methodName;
     }
 

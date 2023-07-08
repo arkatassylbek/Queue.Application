@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,11 +19,19 @@ try
     var builder = WebApplication.CreateBuilder(args);
     
     builder.Services.AddControllers();
+
+    builder.Host.ConfigureAppConfiguration((_, webAppBuilder) =>
+    {
+        webAppBuilder.SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", false, true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true, true)
+            .AddEnvironmentVariables();
+    });
     
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
-    builder.Host.UseNLog();
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
+    builder.Host.UseNLog();
     
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
@@ -33,7 +42,7 @@ try
     builder.Services.AddMongoDbServices();
 
     var app = builder.Build();
-
+    
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {

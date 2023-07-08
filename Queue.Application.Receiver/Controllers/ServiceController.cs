@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Queue.Application.Receiver.DbServices;
+using Queue.Application.Receiver.Filters;
 using Queue.Application.Receiver.Models;
 
 namespace Queue.Application.Receiver.Controllers;
@@ -24,10 +25,12 @@ public class ServiceController : ControllerBase
 
     [HttpGet]
     [ActionName(nameof(CheckHealth))]
+    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(CheckHealth) })]
     public string CheckHealth() => "OK";
 
     [HttpPost]
     [ActionName(nameof(SaveProcessId))]
+    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(SaveProcessId) })]
     public async Task<SaveResponse> SaveProcessId(SaveRequest request)
     {
         try
@@ -45,6 +48,7 @@ public class ServiceController : ControllerBase
     
     [HttpGet]
     [ActionName(nameof(GenerateProcesses))]
+    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(GenerateProcesses) })]
     public async Task<IActionResult> GenerateProcesses([FromQuery] int amount)
     {
         try

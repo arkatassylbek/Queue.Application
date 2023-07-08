@@ -24,8 +24,8 @@ public class ServiceLogFilter : Attribute, IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        var objectResult = (ObjectResult)context.Result;
-        var response = JsonSerializer.Serialize(objectResult?.Value ?? "");
+        var response = "Empty";
+        if (context.Result is ObjectResult objectResult) response = JsonSerializer.Serialize(objectResult.Value ?? "");
         _logger.LogInformation("{Method}|{StatusCode}|Response: {Response}", _methodName, context.HttpContext.Response.StatusCode, response);
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Queue.Application.Job.Filters;
 
 namespace Queue.Application.Job.Controllers;
 
@@ -8,5 +9,6 @@ public class ServiceController : ControllerBase
 {
     [HttpGet]
     [ActionName(nameof(CheckHealth))]
+    [TypeFilter(typeof(ServiceLogFilter<ServiceController>), Arguments = new object[] { nameof(CheckHealth) })]
     public string CheckHealth() => "OK";
 }

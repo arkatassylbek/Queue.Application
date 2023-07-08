@@ -19,14 +19,6 @@ try
     var builder = WebApplication.CreateBuilder(args);
     
     builder.Services.AddControllers();
-
-    builder.Host.ConfigureAppConfiguration((_, webAppBuilder) =>
-    {
-        webAppBuilder.SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", false, true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true, true)
-            .AddEnvironmentVariables();
-    });
     
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();

@@ -36,12 +36,12 @@ public class ServiceController : ControllerBase
         try
         {
             await _dbProcessService.InsertAsync(request.ProcessId);
-            _logger.LogInformation($"{request.ProcessId} saved");
+            _logger.LogInformation("{ProcessId} saved", request.ProcessId);
             return new SaveResponse { IsSuccess = true };
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Filed to save {request.ProcessId}");
+            _logger.LogError(e, "Filed to save {ProcessId}", request.ProcessId);
             return new SaveResponse { IsSuccess = false, Error = e.Message };
         }
     }
@@ -54,7 +54,7 @@ public class ServiceController : ControllerBase
         try
         {
             await _dbProcessQueueService.CreateProcessesAsync(amount);
-            _logger.LogInformation($"{amount} generated");
+            _logger.LogInformation("{Amount} generated", amount);
             return Ok();
         }
         catch (Exception e)
